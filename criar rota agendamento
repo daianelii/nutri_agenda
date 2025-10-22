@@ -1,0 +1,58 @@
+from datetime import datetime
+
+@app.route('/agendar', methods=['GET', 'POST'])
+def agendar():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    conn = conectar()
+    c = conn.cursor()
+
+    if request.method == 'POST':
+        paciente_nome = request.form['paciente']
+        nutricionista_nome = request.form['nutricionista']
+        data = request.form['data']
+        hora = request.form['hora']
+
+        # Validar data e hora (formato)
+        try:
+            datetime.strptime(data, '%Y-%m-%d')
+            datetime.strptime(hora, '%H:%M')
+        except ValueError:
+            pacientes = [row[0] for row in c.execute("SELECT nome FROM pacientes").fetchall()]
+            nutricionistas = [row[0] for row in c.execute("SELECT nome FROM nutricionistas").fetchall()]
+            return render_template('agendar.html', erro="Data ou hora inválida!", pacientes=pacientes, nutricionistas=nutricionistas)
+
+        # Adicionar paciente se não existir
+        c.execute("SELECT id FROM pacientes WHERE nome = ?", (paciente_nome,))
+        paciente = c.fetchone()
+        if not paciente:
+            c.execute("INSERT INTO pacientes (nome) VALUES (?)", (paciente_nome,))
+            paciente_id = c.lastrowid
+        else:
+            paciente_id = paciente[0]
+
+        # Adicionar nutricionista se não existir
+        c.execute("SELECT id FROM nutricionistas WHERE nome = ?", (nutricionista_nome,))
+        nutricionista = c.fetchone()
+        if not nutricionista:
+            c.execute("INSERT INTO nutricionistas (nome) VALUES (?)", (nutricionista_nome,))
+            nutricionista_id = c.lastrowid
+        else:
+            nutricionista_id = nutricionista[0]
+
+        # Inserir consulta
+        c.execute('''
+            INSERT INTO consultas (paciente_id, nutricionista_id, data, hora)
+            VALUES (?, ?, ?, ?)
+        ''', (paciente_id, nutricionista_id, data, hora))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for('consultas'))
+
+    # Se método GET, mostrar formulário com listas
+    pacientes = [row[0] for row in c.execute("SELECT nome FROM pacientes").fetchall()]
+    nutricionistas = [row[0] for row in c.execute("SELECT nome FROM nutricionistas").fetchall()]
+    conn.close()
+    return render_template('agendar.html', pacientes=pacientes, nutricionistas=nutricionistas)
