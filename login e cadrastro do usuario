@@ -1,0 +1,43 @@
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        senha = request.form['senha']
+
+        conn = conectar()
+        c = conn.cursor()
+        c.execute("SELECT * FROM usuarios WHERE nome = ? AND senha = ?", (nome, senha))
+        user = c.fetchone()
+        conn.close()
+
+        if user:
+            session['usuario'] = nome
+            return redirect(url_for('home'))
+        else:
+            return render_template('login.html', erro="Usuário ou senha incorretos")
+
+    return render_template('login.html')
+
+@app.route('/registrar', methods=['POST'])
+def registrar():
+    nome = request.form['nome']
+    senha = request.form['senha']
+
+    conn = conectar()
+    c = conn.cursor()
+    c.execute("INSERT INTO usuarios (nome, senha) VALUES (?, ?)", (nome, senha))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('login'))
+
+@app.route('/home')
+def home():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    return render_template('home.html', usuario=session['usuario'])
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
