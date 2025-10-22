@@ -1,0 +1,12 @@
+nutri_agenda/
+├── app.py
+├── banco.db
+├── requirements.txt
+├── templates/
+│   ├── base.html
+│   ├── login.html
+│   ├── home.html
+│   ├── agendar.html
+│   └── consultas.html
+├── static/
+│   └── style.css
