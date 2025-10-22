@@ -1,0 +1,44 @@
+def criar_tabelas():
+    conn = conectar()
+    c = conn.cursor()
+
+    # Tabela usuarios já existente
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            senha TEXT NOT NULL
+        )
+    ''')
+
+    # Pacientes
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS pacientes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL UNIQUE
+        )
+    ''')
+
+    # Nutricionistas
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS nutricionistas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL UNIQUE
+        )
+    ''')
+
+    # Consultas
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS consultas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            paciente_id INTEGER NOT NULL,
+            nutricionista_id INTEGER NOT NULL,
+            data TEXT NOT NULL,
+            hora TEXT NOT NULL,
+            FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+            FOREIGN KEY (nutricionista_id) REFERENCES nutricionistas(id)
+        )
+    ''')
+
+    conn.commit()
+    conn.close()
