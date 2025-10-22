@@ -1,0 +1,18 @@
+@app.route('/consultas')
+def consultas():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    conn = conectar()
+    c = conn.cursor()
+    c.execute('''
+        SELECT consultas.id, pacientes.nome, nutricionistas.nome, consultas.data, consultas.hora
+        FROM consultas
+        JOIN pacientes ON consultas.paciente_id = pacientes.id
+        JOIN nutricionistas ON consultas.nutricionista_id = nutricionistas.id
+        ORDER BY consultas.data, consultas.hora
+    ''')
+    consultas = c.fetchall()
+    conn.close()
+
+    return render_template('consultas.html', consultas=consultas)
