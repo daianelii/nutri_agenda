@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agendar Consulta</title>
+</head>
+<body>
+    <h1>Agendar Consulta</h1>
+
+    {% if erro %}
+        <p style="color:red;">{{ erro }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <label>Paciente:</label><br>
+        <input type="text" name="paciente" list="pacientes" required>
+        <datalist id="pacientes">
+            {% for p in pacientes %}
+                <option value="{{ p }}">
+            {% endfor %}
+        </datalist><br><br>
+
+        <label>Nutricionista:</label><br>
+        <input type="text" name="nutricionista" list="nutricionistas" required>
+        <datalist id="nutricionistas">
+            {% for n in nutricionistas %}
+                <option value="{{ n }}">
+            {% endfor %}
+        </datalist><br><br>
+
+        <label>Data:</label><br>
+        <input type="date" name="data" required><br><br>
+
+        <label>Hora:</label><br>
+        <input type="time" name="hora" required><br><br>
+
+        <input type="submit" value="Agendar">
+    </form>
+
+    <br>
+    <a href="/home">Voltar</a>
+</body>
+</html>
